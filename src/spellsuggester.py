@@ -2,7 +2,11 @@
 
 from dameraulevenshtein import dameraulevenshtein
 
-class SpellChecker(object):
+class SpellSuggester(object):
+    """
+    Implements a spelling suggester based a provided dictionary.
+    """
+    
     VOWELS = list("aeiou")
     
     def __init__(self, dictfile):
@@ -46,38 +50,49 @@ class SpellChecker(object):
         probable one. For example, "the" is much more frequent than "thaw" so if both
         were the best corrections according to the distance, the would be better correction.
         """
-        print word,
-        # 
         correction = self.get_corrections(word)[0]
+        print correction
         return correction[1]
     
     def get_corrections(self, word):
+        """
+        Find possible candidates for the given word in our normalized dictionary,
+        compare them to our word and see which has the lowest Damerau-Levenshtein
+        distance. Return all candidates with lowest DL distance.
+        """
         norm = self.normalize(word)
         candidates = self.word_dict.get(norm)
         if not candidates:
-            return [(0, "NO CANDIDATES")]
+            return [(0, "NO SUGGESTION")]
         def rank_candidates():
             for cand in candidates:
                 yield dameraulevenshtein(cand, word), cand
-        
         ranked = list(rank_candidates())
         best_score = min(ranked, key=lambda x: x[0])[0]
         return [ c for c in ranked if c[0] == best_score ]
         
     
 if __name__ == "__main__":
-    import argparse
+    import argparse, sys
     parser = argparse.ArgumentParser(description='Check spelling')
     parser.add_argument('dictfile', metavar='file', type=str,
                    help='Dictionary file with one word per line.', default="/usr/share/dict/words")
     
     args = parser.parse_args()
+    sp = SpellSuggester(args.dictfile)
     
-    sp = SpellChecker(args.dictfile)
-    print sp.get_correction("sheeep")
-    print sp.get_correction("sheeeep")
-    print sp.get_correction("jjoobbb")
-    print sp.get_correction("weke")
-    print sp.get_correction("CUNsperrICY")
-    print sp.get_correction("sheeple")
+    while True:
+        try:
+            line = raw_input("> ").strip()
+            print sp.get_correction(line)
+        except EOFError:
+            print "Bye."
+            sys.exit(0)
+    
+#    print sp.get_correction("sheeep")
+#    print sp.get_correction("sheeeep")
+#    print sp.get_correction("jjoobbb")
+#    print sp.get_correction("weke")
+#    print sp.get_correction("CUNsperrICY")
+#    print sp.get_correction("sheeple")
     

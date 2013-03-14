@@ -5,13 +5,13 @@ Created on Mar 14, 2013
 '''
 import unittest
 
-from spellchecker import SpellChecker
+from spellchecker import SpellSuggester
 
 class Test(unittest.TestCase):
 
 
     def setUp(self):
-        self.sp = SpellChecker("/usr/share/dict/words")
+        self.sp = SpellSuggester("/usr/share/dict/words")
 
 
     def tearDown(self):
@@ -31,7 +31,8 @@ class Test(unittest.TestCase):
                  ("sheeeep", "sheep"),
                  ("jjoobbb", "job"),
                  ("weke", "wake"),
-                 ("CUNsperrICY", "conspiracy")
+                 ("CUNsperrICY", "conspiracy"),
+                 ("sheeple", "NO SUGGESTION")
                  ]
         for pair in truth:
             self.assertEqual(pair[1], self.sp.get_correction(pair[0]), "Wrong spelling correction")
