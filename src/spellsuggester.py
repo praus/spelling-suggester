@@ -7,7 +7,7 @@ class SpellSuggester(object):
     Implements a spelling suggester based a provided dictionary.
     """
     
-    VOWELS = list("aeiou")
+    VOWELS = set("aeiou")
     
     def __init__(self, dictfile):
         self.word_dict = {}
@@ -21,9 +21,11 @@ class SpellSuggester(object):
         3. removing vowels
         """
         word = word.lower()
-        norm = [word[0]]
-        for letter in word[1:]:
-            if letter != norm[-1] and letter not in self.VOWELS:
+        norm = []
+        for letter in word:
+            if letter not in self.VOWELS:
+                if norm and letter == norm[-1]:
+                    continue
                 norm.append(letter)
         return ''.join(norm)
     
