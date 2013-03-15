@@ -10,7 +10,7 @@ class SpellSuggester(object):
     VOWELS = set("aeiou")
     
     def __init__(self, dictfile):
-        self.word_dict = {}
+        self.word_list = {}
         self.load_dict_from_file(dictfile)
 
     def normalize(self, word):
@@ -39,10 +39,10 @@ class SpellSuggester(object):
                 if word:
                     normw = self.normalize(word)
                     # Store normalized word in our in-memory processed dictionary
-                    if not self.word_dict.get(normw):
-                        self.word_dict[normw] = []
-                    self.word_dict[normw].append(word)
-        return self.word_dict
+                    if not self.word_list.get(normw):
+                        self.word_list[normw] = []
+                    self.word_list[normw].append(word)
+        return self.word_list
     
     def get_correction(self, word):
         """
@@ -53,7 +53,6 @@ class SpellSuggester(object):
         were the best corrections according to the distance, the would be better correction.
         """
         correction = self.get_corrections(word)[0]
-        print correction
         return correction[1]
     
     def get_corrections(self, word):
@@ -63,7 +62,7 @@ class SpellSuggester(object):
         distance. Return all candidates with lowest DL distance.
         """
         norm = self.normalize(word)
-        candidates = self.word_dict.get(norm)
+        candidates = self.word_list.get(norm)
         if not candidates:
             return [(0, "NO SUGGESTION")]
         def rank_candidates():
@@ -90,11 +89,4 @@ if __name__ == "__main__":
         except EOFError:
             print "Bye."
             sys.exit(0)
-    
-#    print sp.get_correction("sheeep")
-#    print sp.get_correction("sheeeep")
-#    print sp.get_correction("jjoobbb")
-#    print sp.get_correction("weke")
-#    print sp.get_correction("CUNsperrICY")
-#    print sp.get_correction("sheeple")
     
