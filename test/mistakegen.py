@@ -1,11 +1,18 @@
+#!/usr/bin/env python
 
 import random
 import string
+import sys
 
 class MistakeGenerator(object):
     """
     This is a fuzzer that generates classes of errors our spelling
     suggester corrects.
+    
+    1. Case errors
+    2. Repeated letters
+    3. Incorrect vowels
+    4. Any combination of the above types of error in a single word
     """
     
     # Maximum number of duplications for one letter
@@ -40,10 +47,8 @@ class MistakeGenerator(object):
         errors = random.randint(1, max_err)
         
         letters = list(word)
-        
         for errpos in random.sample(range(len(word)), errors):
             letters[errpos] = error_function(letters[errpos])
-        #print "X", letters
         word = ''.join(letters)
         return word
         
@@ -52,8 +57,7 @@ class MistakeGenerator(object):
         Applies _error_function_ to the _words_ list, and yields
         pair: (misspelled word, correct word)
         """
-        for word in words:
-            yield self.apply_error(word, error_function)
+        return [ self.apply_error(word, error_function) for word in words ]
     
     def get_mixedcase(self, words):
         return self.get_list(string.upper, words)
@@ -77,14 +81,21 @@ class MistakeGenerator(object):
         # randomly choose which error functions to apply
         to_apply = random.sample(error_functions, random.randint(1, len(error_functions)))
         # pick random word from the word_list
-        words = [ self.word_list[i] for i in random.sample(range(len(self.word_list)), n) ]
-        # apply functions to them in a "pipe" manner
+        try:
+            words = [ self.word_list[i] for i in random.sample(range(len(self.word_list)), n) ]
+        except ValueError:
+            sys.stderr.write("You can't select more words than is in your dictionary.\n")
+            sys.exit(1)
+        # apply functions to the words in a "pipe" manner
         errwords = words
         for func in to_apply:
             errwords = func(errwords)
         return zip(errwords, words)
     
     def __duplicate(self, letter):
+        """
+        Duplicate the letter at most LETTER_MAX_DUPL times.
+        """
         duplications = random.randint(1, self.LETTER_MAX_DUPL)
         letters = []
         for _ in range(duplications):
@@ -103,8 +114,14 @@ class MistakeGenerator(object):
         
 
 if __name__ == '__main__':
-    mg = MistakeGenerator("words")
-    print mg.get_mistakes(10)
-#    print list(mg.get_mixedcase(10))
-#    print list(mg.get_duplicated(10))
-#    print list(mg.get_vowel_change(10))
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate spelling mistakes')
+    parser.add_argument('dictfile', metavar='file', type=str,
+                   help='Dictionary file with one word per line.', default="/usr/share/dict/words")
+    parser.add_argument('-c', '--count', metavar='mistakes_count', type=int,
+                   help='Number of misspelled words to generate', default=100)
+    args = parser.parse_args()
+    mg = MistakeGenerator(args.dictfile)
+    
+    for mistake in mg.get_mistakes(args.count):
+        print mistake[0]
