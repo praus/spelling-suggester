@@ -1,7 +1,7 @@
-'''
-This is implementation of Damerau-Levenshtein distance by Michael Homer licensed under MIT.
+"""
+This is an implementation of Damerau-Levenshtein distance by Michael Homer licensed under MIT.
 http://mwh.geek.nz/2009/04/26/python-damerau-levenshtein-distance/
-'''
+"""
 
 def dameraulevenshtein(seq1, seq2):
     """Calculate the Damerau-Levenshtein distance between sequences.

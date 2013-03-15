@@ -75,7 +75,7 @@ class SpellSuggester(object):
     
 if __name__ == "__main__":
     import argparse, sys
-    parser = argparse.ArgumentParser(description='Check spelling')
+    parser = argparse.ArgumentParser(description='Simple tool to suggest correct spelling for misspelled words.')
     parser.add_argument('dictfile', metavar='file', type=str,
                    help='Dictionary file with one word per line.', default="/usr/share/dict/words")
     
@@ -87,6 +87,5 @@ if __name__ == "__main__":
             line = raw_input("> ").strip()
             print sp.get_correction(line)
         except EOFError:
-            print "Bye."
             sys.exit(0)
     
